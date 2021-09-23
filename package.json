@@ -1,0 +1,36 @@
+{
+    "name": "workshop-program-composition",
+    "private": true,
+    "version": "0.0.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+        "postinstall": "dotnet tool restore",
+        "clean": "shx rm -rf fableBuild",
+        "prewatch": "npm run clean",
+        "watch": "dotnet fable sources/Client.fsproj --watch --outDir fableBuild --run webpack serve --mode development",
+        "prebuild": "npm run clean",
+        "build": "dotnet fable sources/Client.fsproj --outDir fableBuild && webpack --mode production"
+    },
+    "author": "Maxime Mangel <mangel.maxime@protonmail.com>",
+    "license": "UNLICENSED",
+    "dependencies": {
+        "bulma": "^0.9.3",
+        "react": "^17.0.2",
+        "react-dom": "^17.0.2"
+    },
+    "devDependencies": {
+        "concurrently": "^6.2.1",
+        "css-loader": "^6.3.0",
+        "file-loader": "^6.2.0",
+        "html-webpack-plugin": "^5.3.2",
+        "mini-css-extract-plugin": "^2.3.0",
+        "sass": "^1.42.1",
+        "sass-loader": "^12.1.0",
+        "shx": "^0.3.3",
+        "style-loader": "^3.3.0",
+        "webpack": "^5.53.0",
+        "webpack-cli": "^4.8.0",
+        "webpack-dev-server": "^4.2.1"
+    }
+}

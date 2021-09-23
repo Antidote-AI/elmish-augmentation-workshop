@@ -1,0 +1,15 @@
+version 6.1.3
+source https://api.nuget.org/v3/index.json
+
+storage: none
+framework: netstandard2.0
+
+nuget Fable.Core
+nuget Fable.Browser.Dom
+nuget Fable.Elmish
+nuget Fable.Elmish.Browser
+nuget Fable.Elmish.HMR
+nuget Fable.Elmish.React
+nuget Fable.Promise
+nuget Feliz
+nuget Feliz.Bulma

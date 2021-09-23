@@ -1,0 +1,26 @@
+﻿@charset "utf-8";
+
+$body-size: 15px;
+
+@import "~bulma";
+@import "./table.scss";
+
+input[type="checkbox"],
+input[type="radio"] {
+    margin-right: 0.5em;
+}
+
+.navbar-item.title.is-4 {
+    margin-bottom: 0;
+}
+
+html {
+    &.has-navbar-fixed-top {
+        padding-top: 0;
+
+        body {
+            padding-top: 0;
+            margin-top: $navbar-height;
+        }
+    }
+}
