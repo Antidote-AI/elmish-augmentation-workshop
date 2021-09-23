@@ -6,6 +6,9 @@
     <OtherFlags>--warnon:1182</OtherFlags>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Tuple.fs" />
+    <Compile Include="Viewable.fs" />
+    <Compile Include="Router.fs" />
     <Compile Include="App.fs" />
   </ItemGroup>
   <Import Project="..\.paket\Paket.Restore.targets" />

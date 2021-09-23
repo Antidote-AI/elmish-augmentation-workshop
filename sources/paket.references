@@ -1,1 +1,9 @@
 Fable.Core
+Fable.Browser.Dom
+Fable.Elmish
+Fable.Elmish.Browser
+Fable.Elmish.HMR
+Fable.Elmish.React
+Fable.Promise
+Feliz
+Feliz.Bulma
