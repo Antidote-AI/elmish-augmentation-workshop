@@ -98,11 +98,11 @@ let private update (msg : Msg) (model : Model) =
 
     | StartCall ->
         model
-        , Viewable.connect
+        , Cmd.none
 
     | StartCallFloating ->
         model
-        , Viewable.connectFloating
+        , Cmd.none
 
 let private init (location : Router.Route option) =
     setRoute
@@ -173,6 +173,8 @@ let private view (model : Model) (dispatch : Dispatch<Msg>) =
                         helpers.isJustifyContentCenter
 
                         prop.children [
+                            Components.Viewable.Viewable ()
+
                             Bulma.columns [
                                 Bulma.column [
                                     Bulma.button.button [
@@ -209,13 +211,15 @@ let private view (model : Model) (dispatch : Dispatch<Msg>) =
             Html.text "Not found"
 
         | Page.Form formModel ->
-            Form.view formModel (FormMsg >> dispatch)
+            React.fragment [
+                Form.view formModel (FormMsg >> dispatch)
+                Components.Viewable.Viewable ()
+            ]
 
     React.fragment [
         navbar model
 
         pageContent
-
     ]
 
 open Elmish.React
@@ -225,7 +229,7 @@ open Elmish.HMR
 
 Program.mkProgram init update view
 |> Program.toNavigable (parseHash Router.routeParser) setRoute
-|> Viewable.Program.withViewable
+// |> Viewable.Program.withViewable
 |> Program.withTrace ConsoleTracer.withTrace
 |> Program.withReactSynchronous "root"
 |> Program.run

@@ -18,3 +18,4 @@ nuget Fable.Form.Simple.Bulma
 nuget Fable.Promise
 nuget Feliz
 nuget Feliz.Bulma
+nuget Feliz.UseElmish
