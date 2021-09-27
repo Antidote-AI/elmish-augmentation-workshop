@@ -13,3 +13,8 @@ The goals were:
 1. `npm install`
 1. `npm run watch`
 1. Go to http://localhost:8080/
+
+## Branches
+
+- The main branch contains a working prototype that I made to prepare the workshop
+- The workshop_v1 branch contains a base to work from during the workshop
