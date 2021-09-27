@@ -12,10 +12,16 @@ let private EVENT_IDENTIFIER = "antidote_viewable_program_event"
 [<RequireQualifiedAccess>]
 type Action =
     | Connect
+    | ConnectFloating
     | Disconnect
     | SwitchToFloating
 
 
+/// <summary>
+/// Ask to connect the Video in FullScreen
+/// </summary>
+/// <typeparam name="'a"></typeparam>
+/// <returns></returns>
 let connect =
     [
         fun _ ->
@@ -30,6 +36,32 @@ let connect =
             |> ignore
     ]
 
+
+/// <summary>
+/// Ask to connect the video in Floating
+/// </summary>
+/// <typeparam name="'a"></typeparam>
+/// <returns></returns>
+let connectFloating =
+    [
+        fun _ ->
+            let detail =
+                jsOptions<Types.CustomEventInit>(fun o ->
+                    o.detail <- Action.ConnectFloating
+                )
+
+            let event = CustomEvent.Create(EVENT_IDENTIFIER, detail)
+
+            window.dispatchEvent(event)
+            |> ignore
+    ]
+
+
+/// <summary>
+/// Disconnect the video
+/// </summary>
+/// <typeparam name="'a"></typeparam>
+/// <returns></returns>
 let disconnect =
     [
         fun _ ->
@@ -44,6 +76,11 @@ let disconnect =
             |> ignore
     ]
 
+/// <summary>
+/// For the mode to floating
+/// </summary>
+/// <typeparam name="'a"></typeparam>
+/// <returns></returns>
 let forceFloating =
     [
         fun _ ->
@@ -65,7 +102,9 @@ module Program =
     open Feliz.Bulma
     open Feliz.ReactDraggable
 
+    // Viewable msgs
     type Viewable<'msg> =
+        // Required to identify the messages coming from the user application
         | UserMsg of 'msg
         | ActionReceived of Action
         | SwitchToFullScreen
@@ -80,9 +119,12 @@ module Program =
         | Disconnected
         | Connected of ConnectedState
 
+    // Viewable program state
     type Model<'model> =
         {
+            // Store the User model
             UserModel : 'model
+            // Store the Viewable model
             State : State
         }
 
@@ -187,12 +229,11 @@ module Program =
                 ]
             ]
 
+        // Make the content draggable
         reactDraggable.draggable [
 
             draggable.child content
         ]
-
-
 
     let private view (model : Model<'model>) dispatch =
         Html.div [
@@ -248,11 +289,18 @@ module Program =
                 |> Tuple.mapFirst (fun userModel -> { model with UserModel = userModel })
                 |> Tuple.mapSecond (Cmd.map UserMsg)
 
+            // Map action coming from the custom event
             | ActionReceived action ->
                 match action with
                 | Action.Connect ->
                     { model with
                         State = Connected FullScreen
+                    }
+                    , Cmd.none
+
+                | Action.ConnectFloating ->
+                    { model with
+                        State = Connected Floating
                     }
                     , Cmd.none
 

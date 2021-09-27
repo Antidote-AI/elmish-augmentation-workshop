@@ -36,13 +36,18 @@ type Msg =
     | SetRoute of Router.Route option
     | FormMsg of Form.Msg
     | StartCall
+    | StartCallFloating
 
+// Standard Model for an Elmish application
 type Model =
     {
+        // Store the current route
         CurrentRoute : Router.Route option
+        // Store the current Page this is where most of the application state is
         ActivePage : Page
     }
 
+// Given a route, it will return the appropriate Page
 let private setRoute (optRoute : Router.Route option) (model : Model) =
     let model = { model with CurrentRoute = optRoute }
 
@@ -74,7 +79,6 @@ let private setRoute (optRoute : Router.Route option) (model : Model) =
             }
             , Cmd.map FormMsg subCmd
 
-
 let private update (msg : Msg) (model : Model) =
     match msg with
     | SetRoute optRoute ->
@@ -96,6 +100,9 @@ let private update (msg : Msg) (model : Model) =
         model
         , Viewable.connect
 
+    | StartCallFloating ->
+        model
+        , Viewable.connectFloating
 
 let private init (location : Router.Route option) =
     setRoute
@@ -153,25 +160,48 @@ let private navbar (model : Model) =
         ]
     ]
 
-open Fable.FontAwesome
 
 let private view (model : Model) (dispatch : Dispatch<Msg>) =
     let pageContent =
         match model.ActivePage with
         | Page.Home ->
-            Bulma.section [
+            Bulma.hero [
+                hero.isFullHeightWithNavbar
 
-                Html.text "Home page"
+                prop.children [
+                    Bulma.heroBody [
+                        helpers.isJustifyContentCenter
 
-                Html.br []
-                Html.br []
+                        prop.children [
+                            Bulma.columns [
+                                Bulma.column [
+                                    Bulma.button.button [
+                                        color.isPrimary
+                                        button.isMedium
 
-                Bulma.button.button [
-                    prop.onClick (fun _ ->
-                        dispatch StartCall
-                    )
+                                        prop.onClick (fun _ ->
+                                            dispatch StartCall
+                                        )
 
-                    prop.text "Start call"
+                                        prop.text "Start call (fullscreen)"
+                                    ]
+                                ]
+
+                                Bulma.column [
+                                    Bulma.button.button [
+                                        color.isPrimary
+                                        button.isMedium
+
+                                        prop.onClick (fun _ ->
+                                            dispatch StartCallFloating
+                                        )
+
+                                        prop.text "Start call (floating)"
+                                    ]
+                                ]
+                            ]
+                        ]
+                    ]
                 ]
             ]
 
@@ -184,18 +214,8 @@ let private view (model : Model) (dispatch : Dispatch<Msg>) =
     React.fragment [
         navbar model
 
-        Bulma.container [
-            Bulma.columns [
-                Bulma.column [
-                    column.isOffset3
-                    column.is6
+        pageContent
 
-                    prop.children [
-                        pageContent
-                    ]
-                ]
-            ]
-        ]
     ]
 
 open Elmish.React
