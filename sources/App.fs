@@ -35,8 +35,6 @@ type Page =
 type Msg =
     | SetRoute of Router.Route option
     | FormMsg of Form.Msg
-    | StartCall
-    | StartCallFloating
 
 // Standard Model for an Elmish application
 type Model =
@@ -95,14 +93,6 @@ let private update (msg : Msg) (model : Model) =
         | _ ->
             model
             , Cmd.none
-
-    | StartCall ->
-        model
-        , Viewable.connect
-
-    | StartCallFloating ->
-        model
-        , Viewable.connectFloating
 
 let private init (location : Router.Route option) =
     setRoute
@@ -179,9 +169,9 @@ let private view (model : Model) (dispatch : Dispatch<Msg>) =
                                         color.isPrimary
                                         button.isMedium
 
-                                        prop.onClick (fun _ ->
-                                            dispatch StartCall
-                                        )
+                                        // prop.onClick (fun _ ->
+                                        //     dispatch StartCall
+                                        // )
 
                                         prop.text "Start call (fullscreen)"
                                     ]
@@ -192,9 +182,9 @@ let private view (model : Model) (dispatch : Dispatch<Msg>) =
                                         color.isPrimary
                                         button.isMedium
 
-                                        prop.onClick (fun _ ->
-                                            dispatch StartCallFloating
-                                        )
+                                        // prop.onClick (fun _ ->
+                                        //     dispatch StartCallFloating
+                                        // )
 
                                         prop.text "Start call (floating)"
                                     ]
