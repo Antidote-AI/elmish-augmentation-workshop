@@ -128,6 +128,12 @@ module Program =
             State : State
         }
 
+    let viewableContext : Fable.React.IContext<State> = React.createContext()
+
+    [<ReactComponent>]
+    let ViewableProvider (state : State) (children : seq<ReactElement>) =
+        React.contextProvider(viewableContext, state, children)
+
     module private Control =
 
         let endCall dispatch =
@@ -393,7 +399,7 @@ module Program =
             ]
 
         let mapView userView model dispatch =
-            React.fragment [
+            ViewableProvider model.State [
                 view model dispatch
                 userView model.UserModel (UserMsg >> dispatch)
             ]

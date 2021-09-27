@@ -160,50 +160,63 @@ let private navbar (model : Model) =
         ]
     ]
 
+let private showConnectButtons dispatch =
+    Bulma.columns [
+        Bulma.column [
+            Bulma.button.button [
+                color.isPrimary
+                button.isMedium
+
+                prop.onClick (fun _ ->
+                    dispatch StartCall
+                )
+
+                prop.text "Start call (fullscreen)"
+            ]
+        ]
+
+        Bulma.column [
+            Bulma.button.button [
+                color.isPrimary
+                button.isMedium
+
+                prop.onClick (fun _ ->
+                    dispatch StartCallFloating
+                )
+
+                prop.text "Start call (floating)"
+            ]
+        ]
+    ]
+
+[<ReactComponent>]
+let Home dispatch =
+    let viewableState = React.useContext Viewable.Program.viewableContext
+
+    Bulma.hero [
+        hero.isFullHeightWithNavbar
+
+        prop.children [
+            Bulma.heroBody [
+                helpers.isJustifyContentCenter
+
+                prop.children [
+                    match viewableState with
+                    | Viewable.Program.Connected _ ->
+                        Html.text "Connected"
+
+                    | Viewable.Program.Disconnected ->
+                        showConnectButtons dispatch
+                ]
+            ]
+        ]
+    ]
 
 let private view (model : Model) (dispatch : Dispatch<Msg>) =
     let pageContent =
         match model.ActivePage with
         | Page.Home ->
-            Bulma.hero [
-                hero.isFullHeightWithNavbar
-
-                prop.children [
-                    Bulma.heroBody [
-                        helpers.isJustifyContentCenter
-
-                        prop.children [
-                            Bulma.columns [
-                                Bulma.column [
-                                    Bulma.button.button [
-                                        color.isPrimary
-                                        button.isMedium
-
-                                        prop.onClick (fun _ ->
-                                            dispatch StartCall
-                                        )
-
-                                        prop.text "Start call (fullscreen)"
-                                    ]
-                                ]
-
-                                Bulma.column [
-                                    Bulma.button.button [
-                                        color.isPrimary
-                                        button.isMedium
-
-                                        prop.onClick (fun _ ->
-                                            dispatch StartCallFloating
-                                        )
-
-                                        prop.text "Start call (floating)"
-                                    ]
-                                ]
-                            ]
-                        ]
-                    ]
-                ]
-            ]
+            Home dispatch
 
         | Page.NotFound ->
             Html.text "Not found"
