@@ -1,31 +1,244 @@
 module Viewable
 
+open Fable.Core
+open Fable.Core.JsInterop
 open Elmish
+open Browser
+open Fable.FontAwesome
 
-let cmd = ""
+[<Literal>]
+let private EVENT_IDENTIFIER = "antidote_viewable_program_event"
+
+[<RequireQualifiedAccess>]
+type Action =
+    | Connect
+    | Disconnect
+    | SwitchToFloating
+
+
+let connect =
+    [
+        fun _ ->
+            let detail =
+                jsOptions<Types.CustomEventInit>(fun o ->
+                    o.detail <- Action.Connect
+                )
+
+            let event = CustomEvent.Create(EVENT_IDENTIFIER, detail)
+
+            window.dispatchEvent(event)
+            |> ignore
+    ]
+
+let disconnect =
+    [
+        fun _ ->
+            let detail =
+                jsOptions<Types.CustomEventInit>(fun o ->
+                    o.detail <- Action.Disconnect
+                )
+
+            let event = CustomEvent.Create(EVENT_IDENTIFIER, detail)
+
+            window.dispatchEvent(event)
+            |> ignore
+    ]
+
+let forceFloating =
+    [
+        fun _ ->
+            let detail =
+                jsOptions<Types.CustomEventInit>(fun o ->
+                    o.detail <- Action.SwitchToFloating
+                )
+
+            let event = CustomEvent.Create(EVENT_IDENTIFIER, detail)
+
+            window.dispatchEvent(event)
+            |> ignore
+    ]
 
 [<RequireQualifiedAccess>]
 module Program =
 
     open Feliz
+    open Feliz.Bulma
+    open Feliz.ReactDraggable
 
     type Viewable<'msg> =
         | UserMsg of 'msg
+        | ActionReceived of Action
+        | SwitchToFullScreen
+        | EndCall
+        | SwitchToFloating
 
-    type DisplayMode =
+    type ConnectedState =
         | FullScreen
         | Floating
+
+    type State =
+        | Disconnected
+        | Connected of ConnectedState
 
     type Model<'model> =
         {
             UserModel : 'model
-            DisplayMode : DisplayMode
+            State : State
         }
+
+    module private Control =
+
+        let endCall dispatch =
+            Bulma.button.span [
+                color.isDanger
+                prop.onClick (fun _ ->
+                    dispatch EndCall
+                )
+
+                prop.children [
+                    Bulma.icon [
+                        color.isWhite
+
+                        prop.children [
+                            Fa.i
+                                [
+                                    Fa.Solid.PhoneSlash
+                                ]
+                                [ ]
+                        ]
+                    ]
+                ]
+            ]
+
+        let maximize dispatch =
+            Bulma.button.span [
+                prop.onClick (fun _ ->
+                    dispatch SwitchToFullScreen
+                )
+
+                prop.children [
+                    Bulma.icon [
+                        Fa.i
+                            [
+                                Fa.Solid.Expand
+                            ]
+                            [ ]
+                    ]
+                ]
+            ]
+
+        let minimize dispatch =
+            Bulma.button.span [
+                prop.onClick (fun _ ->
+                    dispatch SwitchToFloating
+                )
+
+                prop.children [
+                    Bulma.icon [
+                        Fa.i
+                            [
+                                Fa.Solid.Compress
+                            ]
+                            [ ]
+                    ]
+                ]
+            ]
+
+    let renderFullScreen dispatch =
+        Html.div [
+            prop.className "antidote-video is-fullscreen"
+
+            prop.children [
+                Html.div [
+                    prop.className "antidote-video-controls"
+
+                    prop.children [
+
+                        Bulma.buttons [
+                            Control.minimize dispatch
+
+                            Control.endCall dispatch
+                        ]
+                    ]
+                ]
+            ]
+        ]
+
+    let renderFloating dispatch =
+        let content =
+            Html.div [
+                prop.classes [
+                    "antidote-video is-floating"
+                ]
+
+                prop.children [
+                    Html.div [
+                        prop.className "antidote-video-controls"
+
+                        prop.children [
+
+                            Bulma.buttons [
+                                Control.maximize dispatch
+
+                                Control.endCall dispatch
+                            ]
+                        ]
+                    ]
+                ]
+            ]
+
+        reactDraggable.draggable [
+
+            draggable.child content
+        ]
+
+
 
     let private view (model : Model<'model>) dispatch =
         Html.div [
             prop.className "viewable-container"
+
+            prop.children [
+                match model.State with
+                | Disconnected ->
+                    null
+
+                | Connected connectedState ->
+                    match connectedState with
+                    | FullScreen ->
+                        renderFullScreen dispatch
+
+                    | Floating ->
+                        renderFloating dispatch
+
+            ]
         ]
+
+    let private applyIfConnected (model : Model<_>) (func : ConnectedState -> ConnectedState * Cmd<Viewable<_>>) =
+        match model.State with
+        | Connected connectedState ->
+            func connectedState
+            |> Tuple.mapFirst Connected
+            |> Tuple.mapFirst (fun connectedState -> { model with State = connectedState })
+
+        | Disconnected ->
+            model
+            , Cmd.none
+
+    let private switchToFloating model =
+        applyIfConnected
+            model
+            (fun connectedState ->
+                match connectedState with
+                | FullScreen ->
+                    Floating
+                    , Cmd.none
+
+                // Already floating do nothing
+                | Floating _ ->
+                    connectedState
+                    , Cmd.none
+            )
 
     let withViewable (program : Elmish.Program<'arg, 'model, 'msg, 'view>) =
         let mapUpdate update msg model =
@@ -35,10 +248,57 @@ module Program =
                 |> Tuple.mapFirst (fun userModel -> { model with UserModel = userModel })
                 |> Tuple.mapSecond (Cmd.map UserMsg)
 
+            | ActionReceived action ->
+                match action with
+                | Action.Connect ->
+                    { model with
+                        State = Connected FullScreen
+                    }
+                    , Cmd.none
+
+                | Action.Disconnect ->
+                    { model with
+                        State = Disconnected
+                    }
+                    , Cmd.none
+
+                | Action.SwitchToFloating ->
+                    switchToFloating model
+
+            | EndCall ->
+                match model.State with
+                | Connected _ ->
+                    { model with
+                        State = Disconnected
+                    }
+                    , Cmd.none
+
+                | Disconnected ->
+                    model
+                    , Cmd.none
+
+            | SwitchToFullScreen ->
+                applyIfConnected
+                    model
+                    (fun connectedState ->
+                        match connectedState with
+                        // Already fullscreen do nothing
+                        | FullScreen ->
+                            connectedState
+                            , Cmd.none
+
+                        | Floating _ ->
+                            FullScreen
+                            , Cmd.none
+                    )
+
+            | SwitchToFloating ->
+                switchToFloating model
+
         let createModel (model, cmd) =
             {
                 UserModel = model
-                DisplayMode = FullScreen
+                State = Disconnected
             }
             , cmd
 
@@ -50,8 +310,39 @@ module Program =
             )
             >> createModel
 
+        let viewableEvent (dispatch : Dispatch<Viewable<_>>) =
+            // If HMR support is active, then we provide have a custom implementation.
+            // This is needed to avoid:
+            // - flickering (trigger several react renderer process)
+            // - attaching several event listener to the same event
+            #if DEBUG
+            let hot = HMR.``module``.hot
+
+            if not (isNull hot) then
+                if hot.status() <> HMR.Status.Idle then
+                    window.removeEventListener(EVENT_IDENTIFIER, !!window?(EVENT_IDENTIFIER))
+
+                window?(EVENT_IDENTIFIER) <- fun (ev : Types.Event) ->
+                    let ev = ev :?> Types.CustomEvent
+                    let action = ev.detail :?> Action
+
+                    dispatch (ActionReceived action)
+
+                window.addEventListener(EVENT_IDENTIFIER, !!window?(EVENT_IDENTIFIER))
+            else
+            #endif
+                window.addEventListener(EVENT_IDENTIFIER, fun ev ->
+                    let ev = ev :?> Types.CustomEvent
+                    let action = ev.detail :?> Action
+
+                    dispatch (ActionReceived action)
+                )
+
         let mapSubscribe subscribe model =
-            subscribe model.UserModel |> Cmd.map UserMsg
+            Cmd.batch [
+                [ viewableEvent ]
+                subscribe model.UserModel |> Cmd.map UserMsg
+            ]
 
         let mapView userView model dispatch =
             React.fragment [

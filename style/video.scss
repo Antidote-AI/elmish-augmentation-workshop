@@ -1,0 +1,44 @@
+.antidote-video {
+
+    z-index: 1;
+
+    &.is-fullscreen {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background-color: $grey-dark;
+
+        .antidote-video-controls {
+            bottom: $navbar-height;
+        }
+    }
+
+    &.is-floating {
+        position: fixed;
+        top: 100px;
+        right: 100px;
+        width: 200px;
+        height: 200px;
+        border-radius: $radius;
+        background-color: $grey-dark;
+        // cursor: grab;
+
+        // &.is-dragging {
+        //     cursor: move;
+        // }
+
+        .antidote-video-controls {
+            bottom: 1rem;
+        }
+    }
+
+
+    .antidote-video-controls {
+        position: absolute;
+        width: 100%;
+        display: flex;
+        justify-content: center;
+    }
+}

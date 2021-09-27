@@ -10,6 +10,11 @@ nuget Fable.Elmish
 nuget Fable.Elmish.Browser
 nuget Fable.Elmish.HMR
 nuget Fable.Elmish.React
+nuget Fable.FontAwesome
+nuget Fable.FontAwesome.Free
+nuget Fable.Form
+nuget Fable.Form.Simple
+nuget Fable.Form.Simple.Bulma
 nuget Fable.Promise
 nuget Feliz
 nuget Feliz.Bulma

@@ -9,6 +9,7 @@ open Browser.Dom
 [<RequireQualifiedAccess>]
 type Route =
     | Home
+    | Form
     | NotFound
 
 
@@ -16,6 +17,7 @@ let private toHash page =
     let segmentsPart =
         match page with
         | Route.Home -> "home"
+        | Route.Form -> "form"
         | Route.NotFound -> "not-found"
 
     "#" + segmentsPart
@@ -24,6 +26,7 @@ let routeParser: Parser<Route->Route,Route> =
     oneOf
         [
             map Route.Home (s "home")
+            map Route.Form (s "form")
             map Route.Home top
         ]
 

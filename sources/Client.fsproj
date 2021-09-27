@@ -7,8 +7,13 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Tuple.fs" />
+    <Compile Include="Bindings/HMR.fs" />
+    <Compile Include="Bindings/ReactDraggable.fs" />
     <Compile Include="Viewable.fs" />
+    <Compile Include="ConsoleTracer.fs" />
     <Compile Include="Router.fs" />
+    <Compile Include="Page/Form.fs" />
+    <Compile Include="Page/Visio.fs" />
     <Compile Include="App.fs" />
   </ItemGroup>
   <Import Project="..\.paket\Paket.Restore.targets" />

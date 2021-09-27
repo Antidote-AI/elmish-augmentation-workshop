@@ -53,7 +53,14 @@ module.exports = (_env, options) => {
                     use: [
                         MiniCssExtractPlugin.loader,
                         'css-loader',
-                        'sass-loader',
+                        {
+                            loader: 'sass-loader',
+                            options: {
+                                sassOptions: {
+                                    quietDeps: true // Disable slash div warning coming from dependencies like FontAwesome
+                                }
+                            }
+                        }
                     ],
                 },
                 {

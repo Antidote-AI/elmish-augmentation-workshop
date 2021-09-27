@@ -1,5 +1,17 @@
 ﻿@charset "utf-8";
 
+// Font Awesome
+// $fa-font-path: "~@fortawesome/fontawesome-free/webfonts/";
+// @import "~@fortawesome/fontawesome-free/scss/fontawesome.scss";
+// @import "~@fortawesome/fontawesome-free/scss/regular.scss";
+// @import "~@fortawesome/fontawesome-free/scss/solid.scss";
+// @import "~@fortawesome/fontawesome-free/scss/brands.scss";
+// Not using the NPM package because I get some errors from Firefox, I don't know why
+
+$font-awesome-url: 'https://use.fontawesome.com/releases/v5.15.4/css/all.css' !default;
+
+@import url($font-awesome-url);
+
 $primary: #176663;
 $success: #66bd77;
 $warning: #ffa17a;
@@ -9,6 +21,7 @@ $danger: #b3507a;
 $body-size: 15px;
 
 @import "~bulma";
+@import "./video.scss";
 
 input[type="checkbox"],
 input[type="radio"] {
