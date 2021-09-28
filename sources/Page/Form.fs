@@ -40,7 +40,7 @@ let init () =
         RememberMe = false
     }
     |> Form.View.idle
-    , Cmd.none
+    , Viewable.forceFloating
 
 let update (msg : Msg) (model : Model) =
     match msg with
